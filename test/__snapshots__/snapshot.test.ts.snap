@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snapshot functional.tsx 1`] = `
+"export const text = 'foo';
+export const noop = _ => _;
+export const ContainsText = {
+    render(h) {
+        return h(\\"div\\", [\\"test\\"]);
+    },
+};
+export const BindsText = {
+    render(h) {
+        return h(\\"div\\", [text]);
+    },
+};
+export const ExtractsAttrs = {
+    render(h) {
+        return h(\\"div\\", { attrs: { \\"id\\": \\"hi\\", \\"dir\\": \\"ltr\\" } });
+    },
+};
+export const BindsAttrs = {
+    render(h) {
+        return h(\\"div\\", { attrs: { \\"id\\": text } });
+    },
+};
+export const HandlesTopLevelSpecialAttrs = {
+    render(h) {
+        return h(\\"div\\", { \\"class\\": text, \\"style\\": \\"bar\\", \\"key\\": \\"key\\", \\"ref\\": \\"ref\\", \\"refInFor\\": true, \\"slot\\": \\"slot\\" });
+    },
+};
+export const HandlesNestedProperties = {
+    render(h) {
+        return (h(\\"div\\", { props: { \\"on-success\\": noop }, on: { \\"click\\": noop, \\"kebab-case\\": noop }, domProps: { \\"innerHTML\\": \\"<p>hi</p>\\" }, hook: { \\"insert\\": noop } }));
+    },
+};
+"
+`;
