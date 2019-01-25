@@ -4,10 +4,22 @@ export const ContainsText = {
   },
 };
 
-const text = 'foo'
+const text = 'foo';
 
-export const BindssText = {
+export const BindsText = {
   render(h) {
     return <div>{text}</div>;
+  },
+};
+
+export const ExtractsAttrs = {
+  render(h) {
+    return <div id="hi" dir="ltr" />;
+  },
+};
+
+export const BindsAttrs = {
+  render(h) {
+    return <div id={text} />;
   },
 };
