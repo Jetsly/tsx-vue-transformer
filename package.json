@@ -1,0 +1,30 @@
+{
+  "name": "tsx-vue-transformer",
+  "version": "0.1.0",
+  "description": "transformer tsx to vue, and no babel",
+  "main": "index.js",
+  "typings": "index.d.ts",
+  "repository": "git@github.com:Jetsly/tsx-vue-transformer.git",
+  "author": "Jetsly <cnljli@live.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "rm -rf lib&&tsc -p ./",
+    "watch": "rm -rf lib&&tsc -w -p ./",
+    "test": "jest --no-cache"
+  },
+  "keywords": [
+    "tsx-vue-plugins",
+    "tsx-vue-transformer",
+    "tsx-vue"
+  ],
+  "devDependencies": {
+    "@types/jest": "^23.3.13",
+    "@types/node": "^10.12.18",
+    "@vue/test-utils": "^1.0.0-beta.28",
+    "jest": "^23.6.0",
+    "ts-jest": "^23.10.5",
+    "typescript": "^3.2.4",
+    "vue": "^2.5.22",
+    "vue-template-compiler": "^2.5.22"
+  }
+}
