@@ -2,13 +2,17 @@ import { shallowMount } from '@vue/test-utils';
 import {
   noop,
   text,
-
   ContainsText,
   BindsText,
   ExtractsAttrs,
   BindsAttrs,
   HandlesTopLevelSpecialAttrs,
   HandlesNestedProperties,
+  HandlesNestedPropertiesCamelCase,
+  SupportsDataAttribute,
+  HandlesIdentifierTagNameAsComponents,
+  WorksForComponentsWithChildren,
+  BindsThingsInThunkWithCorrectThisContext,
 } from './__fixtures__/functional';
 
 test('Contains text', () => {
@@ -55,4 +59,36 @@ test('Handles nested properties', () => {
   expect(wrapper.vnode.data.on['kebab-case'].fns).toEqual(noop);
   expect(wrapper.vnode.data.domProps.innerHTML).toEqual('<p>hi</p>');
   expect(wrapper.vnode.data.hook.insert).toEqual(noop);
+});
+
+test('Handles nested properties (camelCase)', () => {
+  const wrapper = shallowMount(HandlesNestedPropertiesCamelCase) as any;
+  expect(wrapper.vnode.data.props.onSuccess).toEqual(noop);
+  expect(wrapper.vnode.data.on.click.fns).toEqual(noop);
+  expect(wrapper.vnode.data.on.camelCase.fns).toEqual(noop);
+  expect(wrapper.vnode.data.domProps.innerHTML).toEqual('<p>hi</p>');
+  expect(wrapper.vnode.data.hook.insert).toEqual(noop);
+});
+
+test('Supports data attribute', () => {
+  const wrapper = shallowMount(SupportsDataAttribute) as any;
+  expect(wrapper.vnode.data.attrs['data-id']).toEqual('1');
+});
+
+test('Handles identifier tag name as components', () => {
+  const wrapper = shallowMount(HandlesIdentifierTagNameAsComponents) as any;
+  expect(wrapper.vnode.tag).toContain('vue-component');
+});
+
+test('Works for components with children', () => {
+  const wrapper = shallowMount(WorksForComponentsWithChildren) as any;
+
+  const children = wrapper.vnode.componentOptions.children;
+  expect(children[0].tag).toBe('div');
+});
+
+test('Binds things in thunk with correct this context', () => {
+  const wrapper = shallowMount(BindsThingsInThunkWithCorrectThisContext);
+
+  expect(wrapper.html()).toEqual('<div>foo</div>');
 });

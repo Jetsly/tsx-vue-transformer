@@ -1,5 +1,5 @@
 import * as ts from 'typescript';
-
+import * as htmlTags from 'html-tags';
 const rootAttributes = [
   'staticClass',
   'class',
@@ -12,7 +12,13 @@ const rootAttributes = [
   'model',
 ];
 const prefixes = ['props', 'domProps', 'on', 'nativeOn', 'hook', 'attrs'];
-const char = '-';
+const getTag = (tagName: ts.JsxTagNameExpression) => {
+  if (htmlTags.includes(tagName.getText())) {
+    return ts.createStringLiteral(tagName.getText());
+  } else {
+    return ts.createIdentifier(tagName.getText());
+  }
+};
 
 const visitAttrsProperties = (properties: ts.NodeArray<ts.JsxAttributeLike>) => {
   const rootProperties: ts.PropertyAssignment[] = [];
@@ -21,16 +27,16 @@ const visitAttrsProperties = (properties: ts.NodeArray<ts.JsxAttributeLike>) => 
   properties.forEach(property => {
     const propertyName = property.name.getText();
     if (ts.isJsxAttribute(property)) {
-      const prefixIndex = prefixes.indexOf(propertyName.split(char)[0]);
+      const prefixIndex = prefixes.findIndex(prefix =>
+        RegExp(`^${prefix}(\-[a-z]|[A-Z])`).test(propertyName)
+      );
       const isPrefix = prefixIndex > -1;
-      const isAttrs = rootAttributes.indexOf(propertyName) === -1;
       const isRoot = rootAttributes.indexOf(propertyName) > -1;
       const newName = ts.createStringLiteral(
         isPrefix
-          ? propertyName
-              .split(char)
-              .slice(1)
-              .join(char)
+          ? propertyName.replace(RegExp(`^${prefixes[prefixIndex]}-?(\\w)`), (_, w) =>
+              w.toLowerCase()
+            )
           : propertyName
       );
       const newProperty: ts.PropertyAssignment = ts.createPropertyAssignment(
@@ -50,7 +56,7 @@ const visitAttrsProperties = (properties: ts.NodeArray<ts.JsxAttributeLike>) => 
         otherProperty[key].push(newProperty);
       } else if (isRoot) {
         rootProperties.push(newProperty);
-      } else if (isAttrs) {
+      } else {
         if (otherKeys.indexOf('attrs') === -1) {
           otherProperty['attrs'] = [];
           otherKeys.push('attrs');
@@ -70,24 +76,34 @@ const visitAttrsProperties = (properties: ts.NodeArray<ts.JsxAttributeLike>) => 
   }, rootProperties);
 };
 
+const visitJsxElement = (node: ts.JsxElement) => {
+  return ts.createCall(ts.createIdentifier('h'), undefined, [
+    getTag(node.openingElement.tagName),
+    ts.createArrayLiteral(
+      node.children
+        .map(child => {
+          if (ts.isJsxExpression(child)) {
+            return child.expression;
+          } else if (ts.isJsxElement(child)) {
+            return visitJsxElement(child);
+          } else if (ts.isJsxText(child) && child.getText().trim().length) {
+            return ts.createStringLiteral(child.getText());
+          }
+          return undefined;
+        })
+        .filter(Boolean)
+    ),
+  ]);
+};
+
 export default function transformer() {
   return (context: ts.TransformationContext) => (sourceFile: ts.SourceFile) => {
     const visitorJSX: ts.Visitor = node => {
       if (ts.isJsxElement(node)) {
-        return ts.createCall(ts.createIdentifier('h'), undefined, [
-          ts.createStringLiteral(node.openingElement.tagName.getText()),
-          ts.createArrayLiteral(
-            node.children.map(child => {
-              if (ts.isJsxExpression(child)) {
-                return child.expression;
-              }
-              return ts.createStringLiteral(child.getText());
-            })
-          ),
-        ]);
+        return visitJsxElement(node);
       } else if (ts.isJsxSelfClosingElement(node)) {
         return ts.createCall(ts.createIdentifier('h'), undefined, [
-          ts.createStringLiteral(node.tagName.getText()),
+          getTag(node.tagName),
           ts.createObjectLiteral(visitAttrsProperties(node.attributes.properties)),
         ]);
       }

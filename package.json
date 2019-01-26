@@ -26,5 +26,8 @@
     "typescript": "^3.2.4",
     "vue": "^2.5.22",
     "vue-template-compiler": "^2.5.22"
+  },
+  "dependencies": {
+    "html-tags": "^2.0.0"
   }
 }

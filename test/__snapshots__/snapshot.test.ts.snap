@@ -3,6 +3,17 @@
 exports[`snapshot functional.tsx 1`] = `
 "export const text = 'foo';
 export const noop = _ => _;
+const Test: any = { render: () => null };
+const Test1: any = {
+    render(h) {
+        return h(\\"div\\", {});
+    },
+};
+const Test2: any = {
+    render(h) {
+        return h(\\"div\\", [this.$slots.default]);
+    },
+};
 export const ContainsText = {
     render(h) {
         return h(\\"div\\", [\\"test\\"]);
@@ -31,6 +42,32 @@ export const HandlesTopLevelSpecialAttrs = {
 export const HandlesNestedProperties = {
     render(h) {
         return (h(\\"div\\", { props: { \\"on-success\\": noop }, on: { \\"click\\": noop, \\"kebab-case\\": noop }, domProps: { \\"innerHTML\\": \\"<p>hi</p>\\" }, hook: { \\"insert\\": noop } }));
+    },
+};
+export const HandlesNestedPropertiesCamelCase = {
+    render(h) {
+        return (h(\\"div\\", { props: { \\"onSuccess\\": noop }, on: { \\"click\\": noop, \\"camelCase\\": noop }, domProps: { \\"innerHTML\\": \\"<p>hi</p>\\" }, hook: { \\"insert\\": noop } }));
+    },
+};
+export const SupportsDataAttribute = {
+    render(h) {
+        return h(\\"div\\", { attrs: { \\"data-id\\": \\"1\\" } });
+    },
+};
+export const HandlesIdentifierTagNameAsComponents = {
+    render(h) {
+        return h(Test, {});
+    },
+};
+export const WorksForComponentsWithChildren = {
+    render(h) {
+        return (h(Test1, [h(\\"div\\", [\\"hi\\"])]));
+    },
+};
+export const BindsThingsInThunkWithCorrectThisContext = {
+    data: () => ({ test: 'foo' }),
+    render(h) {
+        return h(Test2, [this.test]);
     },
 };
 "
